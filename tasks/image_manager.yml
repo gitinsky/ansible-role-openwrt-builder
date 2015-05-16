@@ -1,0 +1,26 @@
+---
+- name: create folders for docker files
+  file: path=/root/{{ item }} state=directory
+  with_items:
+    - "openwrt-{{ unirun_open_wrt_release_version }}-builder-{{ unirun_open_wrt_arch }}/logs/"
+    - "openwrt-{{ unirun_open_wrt_release_version }}-builder/run/"
+    
+- name: put openwrt-{{ unirun_open_wrt_release_version }}-builder-{{ unirun_open_wrt_arch }} run and config files
+  template:
+    src: "{{ item.src }}"
+    dest: "{{ item.dst }}"
+    mode: 0755
+  with_items:
+    - { src: universalrun.sh,                           dst: "/root/openwrt-{{ unirun_open_wrt_release_version }}-builder/run/universalrun.sh" }
+    - { src: "wrtconfigs/{{ unirun_open_wrt_config }}", dst: "/root/openwrt-{{ unirun_open_wrt_release_version }}-builder/config/{{ unirun_open_wrt_config }}" }
+  register: imagegen_config
+  
+- name: check if image already exists
+  shell: docker images| awk {'print $1'}|grep '^gitinsky/openwrt-{{ unirun_open_wrt_release_version }}-builder-{{ unirun_open_wrt_arch }}$'
+  failed_when: false
+  changed_when: "'gitinsky' not in ar7xxx_ar9xxx_image.stdout"
+  register: imagegen_image
+
+- name: include docker image builder tasks
+  include: imagegen.yml
+  when: imagegen_config.changed or imagegen_image.changed

@@ -1,0 +1,28 @@
+---
+- name: create folders for docker files
+  file: path=/root/{{ item.dir }} state=directory mode={{ item.mode }}
+  with_items:
+    - { dir: openwrt-1209-builder      , mode: 755 }
+    - { dir: openwrt-1209/result       , mode: 755 }
+
+- name: get feeds_lines
+  set_fact:
+    feeds_lines: "{{ lookup('template', '../templates/openwrt-1209-builder/feeds.conf.default' ).split('\n') }}"
+  when: inherit_feeds_in_dockerfile
+   
+- name: put openwrt-1209-builder Dockerfile and feeds file
+  template: src=openwrt-1209-builder/{{ item }} dest=/root/openwrt-1209-builder/{{ item }}
+  register: builder_configs
+  with_items:
+    - Dockerfile
+    - feeds.conf.default
+
+- name: build gitinsky/openwrt-1209-builder
+  docker_image: path=/root/openwrt-1209-builder
+                name="gitinsky/openwrt-1209-builder"
+                state={{ 'build' if builder_configs.changed else 'present' }}
+                timeout=36000
+  register: result
+  until: result|success
+  retries: 5
+  delay: 10

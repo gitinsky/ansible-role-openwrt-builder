@@ -1,1 +1,48 @@
-# ansible-role-openwrt-builder
+## Docker images description
+
+This role builds multiple docker images. Let me describe the naming idea in these examples:
+
+- ```gitinsky/openwrt-builder-base``` is based on ubuntu 12.04 and just includes required packages
+- ```gitinsky/openwrt-1407-builder``` is ready for configuring and compiling openwrt
+- ```gitinsky/openwrt-1407-builder-ar7xxx-ar9xxx``` contains openwrt code that has already compiled default configuration for ```ar7xxx-ar9xxx``` once.
+
+The idea of “architecture” specific images is simple: first compilation always takes longer. And you get default firmwares and packages as a bonus. These images also produce log files on compilation time, log for ```14.07``` ```ar7xxx-ar9xxx``` could be found at ```/root/openwrt-1407-builder-ar7xxx-ar9xxx/logs/make.log```. Firmwares will be placed at ```/root/openwrt-1407-builder/result```.
+
+## Updating role with more architecture-specific images
+
+- Start container from a basic image, for example:
+
+	```
+	docker run --rm \
+	-v /root/openwrt-1407-builder/config:/openwrt/config \
+	-v /root/openwrt-1407-builder/result:/compile/openwrt-1407/bin \
+	-t -i gitinsky/openwrt-1407-builder /bin/bash
+	```
+2. Run the following command to open ```menuconfig```
+	- 14.07:	
+
+		```
+	cd /compile/openwrt-1407 && rm -v .config && su compile -c "make menuconfig" && cp -v .config /openwrt/config/1407.$(grep '^CONFIG_TARGET_BOARD' .config|cut -d '"' -f 2).config
+		```
+	* 12.09:
+
+		```
+	cd /compile/openwrt-1209 && rm -v .config && su compile -c "make menuconfig" && cp -v .config /openwrt/config/1209.$(grep '^CONFIG_TARGET_BOARD' .config|cut -d '"' -f 2).config
+	```
+	
+- Change the “Target System”, exit, confirm saving. Configration file will be automatically copied to the ```/root/openwrt-1407-builder/config``` or ```/root/openwrt-1209-builder/config``` folder.
+4. Exit container, copy these files to the role. If you are using vagrant, here’s the command that will copy your files to the role templates:
+
+	```
+	find /root/openwrt-{1407,1209}-builder/config -type f | xargs -I% cp -v % /vagrant/roles/openwrt-builder/templates/wrtconfigs/
+	```
+5. Open ```openwrt-builder/tasks/main.yml``` and add your new build task to the end of file similar to the following one:
+
+	```
+- name: build 1407 ar7xxx-ar9xxx
+  include: image_manager.yml unirun_open_wrt_release_version=1407 unirun_open_wrt_arch=ar7xxx-ar9xxx unirun_open_wrt_config=1407.ar71xx.config
+```
+
+##  Building firmwares with your modifications
+
+This is done with the [```openwrt-compiler```]() role.

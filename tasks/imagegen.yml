@@ -1,0 +1,38 @@
+---
+- name: ensure done flag is removed
+  file: &id001
+    dest:  "/root/openwrt-{{ unirun_open_wrt_release_version }}-builder-{{ unirun_open_wrt_arch }}/logs/openwrt-{{ unirun_open_wrt_release_version }}-builder-raw.done"
+    state: absent
+
+- name: run openwrt-{{ unirun_open_wrt_release_version }}-builder and compile requested {{ unirun_open_wrt_arch }}
+  docker:
+    image: "gitinsky/openwrt-{{ unirun_open_wrt_release_version }}-builder"
+    detach: no
+    volumes:
+      - "/root/openwrt-{{ unirun_open_wrt_release_version }}-builder/result:/compile/openwrt-{{ unirun_open_wrt_release_version }}/bin"
+      - "/root/openwrt-{{ unirun_open_wrt_release_version }}-builder-{{ unirun_open_wrt_arch }}/logs:/compile/logs"
+      - "/root/openwrt-{{ unirun_open_wrt_release_version }}-builder/run:/compile/run"
+      - "/root/openwrt-{{ unirun_open_wrt_release_version }}-builder/config:/compile/config"
+    name: "openwrt-{{ unirun_open_wrt_release_version }}-builder-{{ unirun_open_wrt_arch }}-docker-image-build"
+    command: "/compile/run/universalrun.sh {{ unirun_open_wrt_config }}"
+  register: docker_run
+    
+- name: show container info
+  debug: var=docker_run
+
+- name: wait for compilation completion
+  wait_for:
+    path: /root/openwrt-{{ unirun_open_wrt_release_version }}-builder-{{ unirun_open_wrt_arch }}/logs/openwrt-{{ unirun_open_wrt_release_version }}-builder-raw.done
+    timeout: 3600
+
+- name: commit image
+  shell: docker commit {{ docker_run.containers[0].Id }} gitinsky/openwrt-{{ unirun_open_wrt_release_version }}-builder-{{ unirun_open_wrt_arch }}:latest
+
+- name: remove done flag
+  file: *id001
+
+- name: remove openwrt-{{ unirun_open_wrt_release_version }}-builder-{{ unirun_open_wrt_arch }} container
+  docker:
+    image: gitinsky/openwrt-{{ unirun_open_wrt_release_version }}-builder
+    name: "openwrt-{{ unirun_open_wrt_release_version }}-builder-{{ unirun_open_wrt_arch }}-docker-image-build"
+    state: absent

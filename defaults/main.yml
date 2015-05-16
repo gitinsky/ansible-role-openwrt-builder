@@ -1,0 +1,4 @@
+---
+# open_wrt_release_version: 1407
+# open_wrt_arch: ar7xxx-ar9xxx
+inherit_feeds_in_dockerfile: no
