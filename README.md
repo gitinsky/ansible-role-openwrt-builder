@@ -19,17 +19,17 @@ The idea of “architecture” specific images is simple: first compilation alwa
 	-t -i gitinsky/openwrt-1407-builder /bin/bash
 	```
 2. Run the following command to open ```menuconfig```
-	- 14.07:	
+	- 14.07:
 
 		```
-	cd /compile/openwrt-1407 && rm -v .config && su compile -c "make menuconfig" && cp -v .config /openwrt/config/1407.$(grep '^CONFIG_TARGET_BOARD' .config|cut -d '"' -f 2).config
+		cd /compile/openwrt-1407 && rm -v .config && su compile -c "make menuconfig" && cp -v .config /openwrt/config/1407.$(grep '^CONFIG_TARGET_BOARD' .config|cut -d '"' -f 2).config
 		```
 	* 12.09:
 
 		```
 	cd /compile/openwrt-1209 && rm -v .config && su compile -c "make menuconfig" && cp -v .config /openwrt/config/1209.$(grep '^CONFIG_TARGET_BOARD' .config|cut -d '"' -f 2).config
-	```
-	
+		```
+
 - Change the “Target System”, exit, confirm saving. Configration file will be automatically copied to the ```/root/openwrt-1407-builder/config``` or ```/root/openwrt-1209-builder/config``` folder.
 4. Exit container, copy these files to the role. If you are using vagrant, here’s the command that will copy your files to the role templates:
 
@@ -39,12 +39,13 @@ The idea of “architecture” specific images is simple: first compilation alwa
 5. Open ```openwrt-builder/tasks/main.yml``` and add your new build task to the end of file similar to the following one:
 
 	```
-- name: build 1407 ar71xx
-  include: image_manager.yml unirun_open_wrt_release_version=1407
-  when: open_wrt_builder_1407 and open_wrt_builder_1407_ar71xx
-```
+	- name: build 1407 ar71xx
+  	include: image_manager.yml unirun_open_wrt_release_version=1407
+  	when: open_wrt_builder_1407 and open_wrt_builder_1407_ar71xx
+	```
 
 - Add version and architecture specific variable to default, in this example it is 	```open_wrt_builder_1407_ar71xx: yes```
+
 
 ##  Building firmwares with your modifications
 
