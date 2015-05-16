@@ -44,8 +44,8 @@ The idea of “architecture” specific images is simple: first compilation alwa
   when: open_wrt_builder_1407 and open_wrt_builder_1407_ar71xx
 ```
 
-- Add version and architecture specific variable to default, in this example it is ```open_wrt_builder_1407_ar71xx: yes```
+- Add version and architecture specific variable to default, in this example it is 	```open_wrt_builder_1407_ar71xx: yes```
 
 ##  Building firmwares with your modifications
 
-This is done with the [```openwrt-compiler```]() role.
+This is done with the [```openwrt-compiler```](https://github.com/gitinsky/ansible-role-openwrt-compiler.git) role.
