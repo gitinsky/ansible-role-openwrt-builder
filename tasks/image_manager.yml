@@ -1,4 +1,8 @@
 ---
+- name: define unirun_open_wrt_config
+  set_fact:
+    unirun_open_wrt_config: "{{ unirun_open_wrt_release_version }}.{{ unirun_open_wrt_arch }}.config"
+    
 - name: create folders for docker files
   file: path=/root/{{ item }} state=directory
   with_items:

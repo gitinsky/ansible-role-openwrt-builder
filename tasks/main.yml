@@ -4,26 +4,24 @@
 
 - name: include 1407-builder image creation
   include: 1407-builder.yml
+  when: open_wrt_builder_1407
 
 - name: include 1209-builder image creation
   include: 1209-builder.yml
+  when: open_wrt_builder_1209
 
-#== build 1407 ar7xxx-ar9xxx
-# - name: set facts for 1407 ar7xxx-ar9xxx
-#   set_fact:
-#     unirun_open_wrt_release_version: 1407
-#     unirun_open_wrt_arch: ar7xxx-ar9xxx
-#     unirun_open_wrt_config: 1407.ar71xx.config
-  
-- name: build 1407 ar7xxx-ar9xxx
-  include: image_manager.yml unirun_open_wrt_release_version=1407 unirun_open_wrt_arch=ar7xxx-ar9xxx unirun_open_wrt_config=1407.ar71xx.config
+- name: build 1407 ar71xx
+  include: image_manager.yml unirun_open_wrt_release_version=1407 unirun_open_wrt_arch=ar71xx
+  when: open_wrt_builder_1407 and open_wrt_builder_1407_ar71xx
 
-#== build 1209 ar7xxx-ar9xxx
-# - name: set facts for 1407 ar7xxx-ar9xxx
-#   set_fact:
-#     unirun_open_wrt_release_version: 1209
-#     unirun_open_wrt_arch: ar7xxx-ar9xxx
-#     unirun_open_wrt_config: 1209.ar71xx.config
-#
-# - name: build 1407 ar7xxx-ar9xxx
-#   include: image_manager.yml
+- name: build 1209 ar71xx
+  include: image_manager.yml unirun_open_wrt_release_version=1209 unirun_open_wrt_arch=ar71xx
+  when: open_wrt_builder_1209 and open_wrt_builder_1209_ar71xx
+
+- name: build 1407 x86
+  include: image_manager.yml unirun_open_wrt_release_version=1407 unirun_open_wrt_arch=x86
+  when: open_wrt_builder_1407 and open_wrt_builder_1407_x86: yes
+
+- name: build 1209 x86
+  include: image_manager.yml unirun_open_wrt_release_version=1209 unirun_open_wrt_arch=x86
+  when: open_wrt_builder_1209 and open_wrt_builder_1209_x86

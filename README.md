@@ -4,9 +4,9 @@ This role builds multiple docker images. Let me describe the naming idea in thes
 
 - ```gitinsky/openwrt-builder-base``` is based on ubuntu 12.04 and just includes required packages
 - ```gitinsky/openwrt-1407-builder``` is ready for configuring and compiling openwrt
-- ```gitinsky/openwrt-1407-builder-ar7xxx-ar9xxx``` contains openwrt code that has already compiled default configuration for ```ar7xxx-ar9xxx``` once.
+- ```gitinsky/openwrt-1407-builder-ar71xx``` contains openwrt code that has already compiled default configuration for ```ar71xx``` once.
 
-The idea of “architecture” specific images is simple: first compilation always takes longer. And you get default firmwares and packages as a bonus. These images also produce log files on compilation time, log for ```14.07``` ```ar7xxx-ar9xxx``` could be found at ```/root/openwrt-1407-builder-ar7xxx-ar9xxx/logs/make.log```. Firmwares will be placed at ```/root/openwrt-1407-builder/result```.
+The idea of “architecture” specific images is simple: first compilation always takes longer. And you get default firmwares and packages as a bonus. These images also produce log files on compilation time, log for ```14.07``` ```ar71xx``` could be found at ```/root/openwrt-1407-builder-ar71xx/logs/make.log```. Firmwares will be placed at ```/root/openwrt-1407-builder/result```.
 
 ## Updating role with more architecture-specific images
 
@@ -39,9 +39,12 @@ The idea of “architecture” specific images is simple: first compilation alwa
 5. Open ```openwrt-builder/tasks/main.yml``` and add your new build task to the end of file similar to the following one:
 
 	```
-- name: build 1407 ar7xxx-ar9xxx
-  include: image_manager.yml unirun_open_wrt_release_version=1407 unirun_open_wrt_arch=ar7xxx-ar9xxx unirun_open_wrt_config=1407.ar71xx.config
+- name: build 1407 ar71xx
+  include: image_manager.yml unirun_open_wrt_release_version=1407
+  when: open_wrt_builder_1407 and open_wrt_builder_1407_ar71xx
 ```
+
+- Add version and architecture specific variable to default, in this example it is ```open_wrt_builder_1407_ar71xx: yes```
 
 ##  Building firmwares with your modifications
 
