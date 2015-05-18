@@ -23,7 +23,7 @@
 - name: wait for compilation completion
   wait_for:
     path: /root/openwrt-{{ unirun_open_wrt_release_version }}-builder-{{ unirun_open_wrt_arch }}/logs/openwrt-{{ unirun_open_wrt_release_version }}-builder-raw.done
-    timeout: 3600
+    timeout: "{{ 3600*5 }}"
 
 - name: commit image
   shell: docker commit {{ docker_run.containers[0].Id }} gitinsky/openwrt-{{ unirun_open_wrt_release_version }}-builder-{{ unirun_open_wrt_arch }}:latest
