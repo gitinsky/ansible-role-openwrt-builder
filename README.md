@@ -40,8 +40,8 @@ The idea of “architecture” specific images is simple: first compilation alwa
 
 	```
 	- name: build 1407 ar71xx
-  	include: image_manager.yml unirun_open_wrt_release_version=1407
-  	when: open_wrt_builder_1407 and open_wrt_builder_1407_ar71xx
+  	  include: image_manager.yml unirun_open_wrt_release_version=1407 unirun_open_wrt_arch=ar71xx
+  	  when: open_wrt_builder_1407 and open_wrt_builder_1407_ar71xx
 	```
 
 - Add version and architecture specific variable to default, in this example it is 	```open_wrt_builder_1407_ar71xx: yes```
