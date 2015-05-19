@@ -11,7 +11,7 @@
     volumes:
       - "/root/openwrt-{{ unirun_open_wrt_release_version }}-builder/result:/compile/openwrt-{{ unirun_open_wrt_release_version }}/bin"
       - "/root/openwrt-{{ unirun_open_wrt_release_version }}-builder-{{ unirun_open_wrt_arch }}/logs:/compile/logs"
-      - "/root/openwrt-{{ unirun_open_wrt_release_version }}-builder/run:/compile/run"
+      - "/root/openwrt-{{ unirun_open_wrt_release_version }}-builder-{{ unirun_open_wrt_arch }}/run:/compile/run"
       - "/root/openwrt-{{ unirun_open_wrt_release_version }}-builder/config:/compile/config"
     name: "openwrt-{{ unirun_open_wrt_release_version }}-builder-{{ unirun_open_wrt_arch }}-docker-image-build"
     command: "/compile/run/universalrun.sh {{ unirun_open_wrt_config }}"

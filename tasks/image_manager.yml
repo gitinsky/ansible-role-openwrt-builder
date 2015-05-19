@@ -15,7 +15,7 @@
     dest: "{{ item.dst }}"
     mode: 0755
   with_items:
-    - { src: universalrun.sh,                           dst: "/root/openwrt-{{ unirun_open_wrt_release_version }}-builder/run/universalrun.sh" }
+    - { src: universalrun.sh,                           dst: "/root/openwrt-{{ unirun_open_wrt_release_version }}-builder-{{ unirun_open_wrt_arch }}/run/universalrun.sh" }
     - { src: "wrtconfigs/{{ unirun_open_wrt_config }}", dst: "/root/openwrt-{{ unirun_open_wrt_release_version }}-builder/config/{{ unirun_open_wrt_config }}" }
   register: imagegen_config
   
