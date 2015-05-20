@@ -7,7 +7,7 @@
   file: path=/root/{{ item }} state=directory
   with_items:
     - "openwrt-{{ unirun_open_wrt_release_version }}-builder-{{ unirun_open_wrt_arch }}/logs/"
-    - "openwrt-{{ unirun_open_wrt_release_version }}-builder/run/"
+    - "openwrt-{{ unirun_open_wrt_release_version }}-builder-{{ unirun_open_wrt_arch }}/run/"
     
 - name: put openwrt-{{ unirun_open_wrt_release_version }}-builder-{{ unirun_open_wrt_arch }} run and config files
   template:
