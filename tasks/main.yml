@@ -25,3 +25,11 @@
 - name: build 1209 x86
   include: image_manager.yml unirun_open_wrt_release_version=1209 unirun_open_wrt_arch=x86
   when: open_wrt_builder_1209 and open_wrt_builder_1209_x86
+
+- name: build 1407 ramips
+  include: image_manager.yml unirun_open_wrt_release_version=1407 unirun_open_wrt_arch=ramips
+  when: open_wrt_builder_1407 and open_wrt_builder_1407_ramips
+
+- name: build 1209 ramips
+  include: image_manager.yml unirun_open_wrt_release_version=1209 unirun_open_wrt_arch=ramips
+  when: open_wrt_builder_1209 and open_wrt_builder_1209_ramips
