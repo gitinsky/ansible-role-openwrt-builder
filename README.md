@@ -6,7 +6,7 @@ This role builds multiple docker images. Let me describe the naming idea in thes
 - ```gitinsky/openwrt-1407-builder``` is ready for configuring and compiling openwrt
 - ```gitinsky/openwrt-1407-builder-ar71xx``` contains openwrt code that has already compiled default configuration for ```ar71xx``` once.
 
-The idea of “architecture” specific images is simple: first compilation always takes longer. And you get default firmwares and packages as a bonus. These images also produce log files on compilation time, log for ```14.07``` ```ar71xx``` could be found at ```/root/openwrt-1407-builder-ar71xx/logs/make.log```. Firmwares will be placed at ```/root/openwrt-1407-builder/result```.
+The idea of “architecture” specific images is simple: first compilation always takes longer. And you get default firmwares and packages as a bonus. These images also produce log files on compilation time, log for ```14.07``` ```ar71xx``` could be found at ```/root/openwrt-1407-builder-ar71xx/logs/make.log```. Firmwares will be buid at ```/root/openwrt-1407-builder/result``` and then rsynced to ```/root/openwrt/```.
 
 ## Updating role with more architecture-specific images
 

@@ -16,7 +16,7 @@
     name: "openwrt-{{ unirun_open_wrt_release_version }}-builder-{{ unirun_open_wrt_arch }}-docker-image-build"
     command: "/compile/run/universalrun.sh {{ unirun_open_wrt_config }}"
   register: docker_run
-    
+
 - name: show container info
   debug: var=docker_run
 
@@ -36,3 +36,14 @@
     image: gitinsky/openwrt-{{ unirun_open_wrt_release_version }}-builder
     name: "openwrt-{{ unirun_open_wrt_release_version }}-builder-{{ unirun_open_wrt_arch }}-docker-image-build"
     state: absent
+
+- name: find out subtarget
+  command: grep -E "^\s{0,}CONFIG_TARGET_[a-z,0-9]{1,}_[a-z,0-9]{1,}=y" "/root/openwrt-{{ unirun_open_wrt_release_version }}-builder/config/{{ unirun_open_wrt_config }}" |sed -E 's/CONFIG_TARGET_([^_]*)_(.*)=y/\2/'
+  changed_when: false
+  register: target_subtarget
+
+- name: ensure /root/openwrt/{{ unirun_open_wrt_release_version }}/{{ unirun_open_wrt_arch }}/{{ target_subtarget.stdout }}/ esists
+  file: dest="/root/openwrt/{{ unirun_open_wrt_release_version }}/{{ unirun_open_wrt_arch }}/{{ target_subtarget.stdout }}/" state=directory
+
+- name: move files to /root/openwrt/{{ unirun_open_wrt_release_version }}/{{ unirun_open_wrt_arch }}/{{ target_subtarget.stdout }}
+  command: rsync --remove-source-files --del -avc /root/openwrt-{{ unirun_open_wrt_release_version }}-builder/result/{{ unirun_open_wrt_arch }}/ /root/openwrt/{{ unirun_open_wrt_release_version }}/{{ unirun_open_wrt_arch }}/{{ target_subtarget.stdout }}/

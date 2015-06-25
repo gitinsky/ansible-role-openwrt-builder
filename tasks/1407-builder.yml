@@ -9,11 +9,9 @@
   template: src=openwrt-1407-builder/Dockerfile dest=/root/openwrt-1407-builder/Dockerfile
 
 - name: build gitinsky/openwrt-1407-builder
-  docker_image: path=/root/openwrt-1407-builder
-                name="gitinsky/openwrt-1407-builder"
-                state=build
-                timeout=7200
-  register: result
-  until: result|success
-  retries: 3
-  delay: 300
+  command: docker build -t gitinsky/openwrt-1407-builder:latest --rm /root/openwrt-1407-builder
+
+  # register: result
+  # until: result|success
+  # retries: 3
+  # delay: 300
