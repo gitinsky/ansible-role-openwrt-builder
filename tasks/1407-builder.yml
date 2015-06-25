@@ -3,7 +3,6 @@
   file: path=/root/{{ item.dir }} state=directory mode={{ item.mode }}
   with_items:
     - { dir: openwrt-1407-builder      , mode: 755 }
-    - { dir: openwrt-1407/result       , mode: 755 }
 
 - name: put openwrt-1407-builder Dockerfile
   template: src=openwrt-1407-builder/Dockerfile dest=/root/openwrt-1407-builder/Dockerfile

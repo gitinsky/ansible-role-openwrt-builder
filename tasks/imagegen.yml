@@ -12,7 +12,7 @@
       - "/root/openwrt-{{ unirun_open_wrt_release_version }}-builder/result:/compile/openwrt-{{ unirun_open_wrt_release_version }}/bin"
       - "/root/openwrt-{{ unirun_open_wrt_release_version }}-builder-{{ unirun_open_wrt_arch }}/logs:/compile/logs"
       - "/root/openwrt-{{ unirun_open_wrt_release_version }}-builder-{{ unirun_open_wrt_arch }}/run:/compile/run"
-      - "/root/openwrt-{{ unirun_open_wrt_release_version }}-builder/config:/compile/config"
+      - "/root/openwrt-builder/config:/compile/config"
     name: "openwrt-{{ unirun_open_wrt_release_version }}-builder-{{ unirun_open_wrt_arch }}-docker-image-build"
     command: "/compile/run/universalrun.sh {{ unirun_open_wrt_config }}"
   register: docker_run
@@ -38,7 +38,7 @@
     state: absent
 
 - name: find out subtarget
-  command: grep -E "^\s{0,}CONFIG_TARGET_[a-z,0-9]{1,}_[a-z,0-9]{1,}=y" "/root/openwrt-{{ unirun_open_wrt_release_version }}-builder/config/{{ unirun_open_wrt_config }}" |sed -E 's/CONFIG_TARGET_([^_]*)_(.*)=y/\2/'
+  command: grep -E "^\s{0,}CONFIG_TARGET_[a-z,0-9]{1,}_[a-z,0-9]{1,}=y" "/root/openwrt-builder/config/{{ unirun_open_wrt_config }}" |sed -E 's/CONFIG_TARGET_([^_]*)_(.*)=y/\2/'
   changed_when: false
   register: target_subtarget
 

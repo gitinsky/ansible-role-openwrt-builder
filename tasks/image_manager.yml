@@ -2,13 +2,13 @@
 - name: define unirun_open_wrt_config
   set_fact:
     unirun_open_wrt_config: "{{ unirun_open_wrt_release_version }}.{{ unirun_open_wrt_arch }}.config"
-    
+
 - name: create folders for docker files
   file: path=/root/{{ item }} state=directory
   with_items:
     - "openwrt-{{ unirun_open_wrt_release_version }}-builder-{{ unirun_open_wrt_arch }}/logs/"
     - "openwrt-{{ unirun_open_wrt_release_version }}-builder-{{ unirun_open_wrt_arch }}/run/"
-    
+
 - name: put openwrt-{{ unirun_open_wrt_release_version }}-builder-{{ unirun_open_wrt_arch }} run and config files
   template:
     src: "{{ item.src }}"
@@ -16,9 +16,9 @@
     mode: 0755
   with_items:
     - { src: universalrun.sh,                           dst: "/root/openwrt-{{ unirun_open_wrt_release_version }}-builder-{{ unirun_open_wrt_arch }}/run/universalrun.sh" }
-    - { src: "wrtconfigs/{{ unirun_open_wrt_config }}", dst: "/root/openwrt-{{ unirun_open_wrt_release_version }}-builder/config/{{ unirun_open_wrt_config }}" }
+    - { src: "wrtconfigs/{{ unirun_open_wrt_config }}", dst: "/root/openwrt-builder/config/{{ unirun_open_wrt_config }}" }
   register: imagegen_config
-  
+
 - name: check if image already exists
   shell: docker images| awk {'print $1'}|grep '^gitinsky/openwrt-{{ unirun_open_wrt_release_version }}-builder-{{ unirun_open_wrt_arch }}$'
   failed_when: false
