@@ -1,9 +1,9 @@
 ---
 - name: ensure done flag is removed
+  when: not container.changed
   file: &id001
     dest:  "/root/openwrt-{{ unirun_open_wrt_release_version }}-builder-{{ unirun_open_wrt_arch }}/logs/openwrt-{{ unirun_open_wrt_release_version }}-builder-raw.done"
     state: absent
-  when: not container.changed
 
 - name: run openwrt-{{ unirun_open_wrt_release_version }}-builder and compile requested {{ unirun_open_wrt_arch }}
   docker:
