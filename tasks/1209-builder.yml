@@ -16,6 +16,19 @@
     - Dockerfile
     - feeds.conf.default
 
+- name: get numeric tags for this image if any
+  shell: docker images|grep -E '^gitinsky/openwrt-1209-builder\s+[0-9,.]+\s+'|awk {'print $2'}
+  failed_when: false
+  changed_when: false
+  register: image_tags
+
+- name: get uuids for this image versions
+  shell: docker images|grep -E '^gitinsky/openwrt-1209-builder\s+[0-9,.]+\s+'|awk {'print $3'}
+  failed_when: false
+  changed_when: false
+  register: image_uuids
+  when: image_tags.stdout_lines|length > 0
+
 - name: build gitinsky/openwrt-1209-builder
   docker_image: path={{ openwrt_config_dir }}/openwrt-1209-builder
                 name="gitinsky/openwrt-1209-builder"
@@ -25,3 +38,15 @@
   until: result|success
   retries: 5
   delay: 10
+
+- name: get image id
+  shell: docker images| grep -E '^gitinsky/openwrt-1209-builder\s+latest'
+  changed_when: false
+  register: imagegen_image
+
+- name: show image id
+  debug: var=imagegen_image.stdout.split()[2]
+
+- name: add version tag
+  shell: "docker tag {{ imagegen_image.stdout.split()[2] }} gitinsky/openwrt-1209-builder:{{ image_tags.stdout.split('\n')| version_up }}"
+  when: "image_uuids.stdout_lines is not defined or imagegen_image.stdout.split()[2] not in image_uuids.stdout_lines"

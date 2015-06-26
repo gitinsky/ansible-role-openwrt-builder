@@ -82,9 +82,13 @@
 
 - name: create targer directory
   file:
-      dest: "{{ openwrt_output_dir_path }}"
+      dest: "{{ item }}"
       state: directory
       owner: "{{ openwrt_output_dir_owner }}"
+  with_items:
+    - "{{ openwrt_output_dir_path }}"
+    - "{{ openwrt_output_dir_path }}/{{ unirun_open_wrt_release_version }}/{{ unirun_open_wrt_arch }}/{{ target_subtarget.stdout }}/"
+
 
 - name: move files to {{ openwrt_config_dir }}/openwrt/{{ unirun_open_wrt_release_version }}/{{ unirun_open_wrt_arch }}/{{ target_subtarget.stdout }}
   command: rsync --remove-source-files --del -avc {{ openwrt_config_dir }}/openwrt-{{ unirun_open_wrt_release_version }}-builder/result/{{ unirun_open_wrt_arch }}/ {{ openwrt_output_dir_path }}/{{ unirun_open_wrt_release_version }}/{{ unirun_open_wrt_arch }}/{{ target_subtarget.stdout }}/
