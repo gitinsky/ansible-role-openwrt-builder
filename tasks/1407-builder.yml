@@ -9,8 +9,3 @@
 
 - name: build gitinsky/openwrt-1407-builder
   command: docker build -t gitinsky/openwrt-1407-builder:latest --rm /root/openwrt-1407-builder
-
-  # register: result
-  # until: result|success
-  # retries: 3
-  # delay: 300

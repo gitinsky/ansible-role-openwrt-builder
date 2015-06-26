@@ -25,6 +25,19 @@
   changed_when: imagegen_image.rc == 1
   register: imagegen_image
 
+- name: If image already exists chech if it is based on latest baseimage
+  shell: docker history {{ imagegen_image.stdout.split()[2] }} | grep $(docker images |grep -E '^gitinsky/openwrt-{{ unirun_open_wrt_release_version }}-builder\s+latest'|awk {'print $3'})
+  register: based_on_latest
+  changed_when: based_on_latest.rc == 1
+  failed_when: false
+  when: not imagegen_image.changed
+
+- name: check if container is already running
+  shell: docker ps| grep -E '\s+openwrt-{{ unirun_open_wrt_release_version }}-builder-{{ unirun_open_wrt_arch }}-docker-image-build\s+'
+  failed_when: false
+  changed_when: container.rc == 0
+  register: container
+
 - name: include docker image builder tasks
   include: imagegen.yml
-  when: imagegen_config.changed or imagegen_image.changed
+  when: imagegen_config.changed or imagegen_image.changed or based_on_latest.changed or container.changed

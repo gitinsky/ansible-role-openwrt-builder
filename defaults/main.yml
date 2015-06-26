@@ -1,10 +1,2 @@
 ---
 inherit_feeds_in_dockerfile: no
-open_wrt_builder_1407: yes
-open_wrt_builder_1209: yes
-open_wrt_builder_1407_ar71xx: yes
-open_wrt_builder_1209_ar71xx: yes
-open_wrt_builder_1407_x86: yes
-open_wrt_builder_1209_x86: yes
-open_wrt_builder_1407_ramips: yes
-open_wrt_builder_1209_ramips: yes

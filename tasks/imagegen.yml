@@ -3,17 +3,13 @@
   file: &id001
     dest:  "/root/openwrt-{{ unirun_open_wrt_release_version }}-builder-{{ unirun_open_wrt_arch }}/logs/openwrt-{{ unirun_open_wrt_release_version }}-builder-raw.done"
     state: absent
-
-- name: get numeric tags for this image if any
-  shell: docker images|grep -E '^gitinsky/openwrt-{{ unirun_open_wrt_release_version }}-builder-{{ unirun_open_wrt_arch }}\s+[0-9,.]+\s+'|awk {'print $2'}
-  failed_when: false
-  changed_when: false
-  register: image_tags
+  when: not container.changed
 
 - name: run openwrt-{{ unirun_open_wrt_release_version }}-builder and compile requested {{ unirun_open_wrt_arch }}
   docker:
     image: "gitinsky/openwrt-{{ unirun_open_wrt_release_version }}-builder"
     detach: no
+    state: restarted
     volumes:
       - "/root/openwrt-{{ unirun_open_wrt_release_version }}-builder/result:/compile/openwrt-{{ unirun_open_wrt_release_version }}/bin"
       - "/root/openwrt-{{ unirun_open_wrt_release_version }}-builder-{{ unirun_open_wrt_arch }}/logs:/compile/logs"
@@ -22,9 +18,28 @@
     name: "openwrt-{{ unirun_open_wrt_release_version }}-builder-{{ unirun_open_wrt_arch }}-docker-image-build"
     command: "/compile/run/universalrun.sh {{ unirun_open_wrt_config }}"
   register: docker_run
+  when: not container.changed
+
+- name: get numeric tags for this image if any
+  shell: docker images|grep -E '^gitinsky/openwrt-{{ unirun_open_wrt_release_version }}-builder-{{ unirun_open_wrt_arch }}\s+[0-9,.]+\s+'|awk {'print $2'}
+  failed_when: false
+  changed_when: false
+  register: image_tags
 
 - name: show container info
   debug: var=docker_run
+  changed_when: docker_run.changed
+  when: not container.changed
+
+- name: define container id from new container
+  set_fact:
+    container_id: "{{ docker_run.containers[0].Id }}"
+  when: not container.changed
+
+- name: define container id from old container
+  set_fact:
+    container_id: "{{ container.stdout.split()[0] }}"
+  when: container.changed
 
 - name: wait for compilation completion
   wait_for:
@@ -32,15 +47,18 @@
     timeout: "{{ 3600*5 }}"
 
 - name: commit image
-  shell: docker commit {{ docker_run.containers[0].Id }} gitinsky/openwrt-{{ unirun_open_wrt_release_version }}-builder-{{ unirun_open_wrt_arch }}:latest
+  shell: docker commit {{ container_id }} gitinsky/openwrt-{{ unirun_open_wrt_release_version }}-builder-{{ unirun_open_wrt_arch }}:latest
 
 - name: get image id
   shell: docker images| grep -E '^gitinsky/openwrt-{{ unirun_open_wrt_release_version }}-builder-{{ unirun_open_wrt_arch }}\s+latest'
   changed_when: false
   register: imagegen_image
 
+- name: show image id
+  debug: var=imagegen_image.stdout.split()[2]
+
 - name: add version tag
-  shell: "docker tag {{ 'gitinsky' not in imagegen_image.stdout.split()[2] }} openwrt-{{ unirun_open_wrt_release_version }}-builder-{{ unirun_open_wrt_arch }}:{{ image_tags.stdout.split('\n')| version_up }}"
+  shell: "docker tag {{ imagegen_image.stdout.split()[2] }} gitinsky/openwrt-{{ unirun_open_wrt_release_version }}-builder-{{ unirun_open_wrt_arch }}:{{ image_tags.stdout.split('\n')| version_up }}"
 
 - name: remove done flag
   file: *id001
@@ -52,9 +70,12 @@
     state: absent
 
 - name: find out subtarget
-  command: grep -E "^\s{0,}CONFIG_TARGET_[a-z,0-9]{1,}_[a-z,0-9]{1,}=y" "/root/openwrt-builder/config/{{ unirun_open_wrt_config }}" |sed -E 's/CONFIG_TARGET_([^_]*)_(.*)=y/\2/'
+  shell: grep -E "^\s{0,}CONFIG_TARGET_[a-z,0-9]{1,}_[a-z,0-9]{1,}=y" "/root/openwrt-builder/config/{{ unirun_open_wrt_config }}" |sed -E 's/CONFIG_TARGET_([^_]*)_(.*)=y/\2/'
   changed_when: false
   register: target_subtarget
+
+- name: show subtagret
+  debug: msg="subtarget = '{{ target_subtarget.stdout }}'"
 
 - name: ensure /root/openwrt/{{ unirun_open_wrt_release_version }}/{{ unirun_open_wrt_arch }}/{{ target_subtarget.stdout }}/ esists
   file: dest="/root/openwrt/{{ unirun_open_wrt_release_version }}/{{ unirun_open_wrt_arch }}/{{ target_subtarget.stdout }}/" state=directory

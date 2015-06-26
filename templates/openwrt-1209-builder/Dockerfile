@@ -1,4 +1,4 @@
-FROM gitinsky/openwrt-builder-base:latest
+FROM gitinsky/openwrt-builder:latest
 
 RUN su compile -c "git clone git://git.openwrt.org/12.09/openwrt.git /compile/openwrt-1209"
 
