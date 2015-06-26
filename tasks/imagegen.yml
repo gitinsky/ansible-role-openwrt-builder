@@ -4,6 +4,12 @@
     dest:  "/root/openwrt-{{ unirun_open_wrt_release_version }}-builder-{{ unirun_open_wrt_arch }}/logs/openwrt-{{ unirun_open_wrt_release_version }}-builder-raw.done"
     state: absent
 
+- name: get numeric tags for this image if any
+  shell: docker images|grep -E '^gitinsky/openwrt-{{ unirun_open_wrt_release_version }}-builder-{{ unirun_open_wrt_arch }}\s+[0-9,.]+\s+'|awk {'print $2'}
+  failed_when: false
+  changed_when: false
+  register: image_tags
+
 - name: run openwrt-{{ unirun_open_wrt_release_version }}-builder and compile requested {{ unirun_open_wrt_arch }}
   docker:
     image: "gitinsky/openwrt-{{ unirun_open_wrt_release_version }}-builder"
@@ -27,6 +33,14 @@
 
 - name: commit image
   shell: docker commit {{ docker_run.containers[0].Id }} gitinsky/openwrt-{{ unirun_open_wrt_release_version }}-builder-{{ unirun_open_wrt_arch }}:latest
+
+- name: get image id
+  shell: docker images| grep -E '^gitinsky/openwrt-{{ unirun_open_wrt_release_version }}-builder-{{ unirun_open_wrt_arch }}\s+latest'
+  changed_when: false
+  register: imagegen_image
+
+- name: add version tag
+  shell: "docker tag {{ 'gitinsky' not in imagegen_image.stdout.split()[2] }} openwrt-{{ unirun_open_wrt_release_version }}-builder-{{ unirun_open_wrt_arch }}:{{ image_tags.stdout.split('\n')| version_up }}"
 
 - name: remove done flag
   file: *id001

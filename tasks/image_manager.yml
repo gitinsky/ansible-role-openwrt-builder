@@ -20,9 +20,9 @@
   register: imagegen_config
 
 - name: check if image already exists
-  shell: docker images| awk {'print $1'}|grep '^gitinsky/openwrt-{{ unirun_open_wrt_release_version }}-builder-{{ unirun_open_wrt_arch }}$'
+  shell: docker images| grep -E '^gitinsky/openwrt-{{ unirun_open_wrt_release_version }}-builder-{{ unirun_open_wrt_arch }}\s+latest'
   failed_when: false
-  changed_when: "'gitinsky' not in imagegen_image.stdout"
+  changed_when: imagegen_image.rc == 1
   register: imagegen_image
 
 - name: include docker image builder tasks
