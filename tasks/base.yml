@@ -3,15 +3,15 @@
   action: setup
 
 - name: create folders for docker files
-  file: path=/root/{{ item.dir }} state=directory mode={{ item.mode }}
+  file: path={{ openwrt_config_dir }}/{{ item.dir }} state=directory mode={{ item.mode }}
   with_items:
     - { dir: openwrt-builder/config      , mode: 755 }
 
 - name: put openwrt-builder Dockerfile
-  template: src=openwrt-builder/Dockerfile dest=/root/openwrt-builder/Dockerfile
+  template: src=openwrt-builder/Dockerfile dest={{ openwrt_config_dir }}/openwrt-builder/Dockerfile
 
 - name: build gitinsky/openwrt-builder
-  docker_image: path=/root/openwrt-builder
+  docker_image: path={{ openwrt_config_dir }}/openwrt-builder
                 name="gitinsky/openwrt-builder"
                 state=build
                 timeout=3600

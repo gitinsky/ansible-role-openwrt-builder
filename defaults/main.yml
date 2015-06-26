@@ -1,2 +1,5 @@
 ---
 inherit_feeds_in_dockerfile: no
+openwrt_config_dir: "/root/openwrt/"
+openwrt_output_dir_path: "/var/www/openwrt"
+openwrt_output_dir_owner: "www-data"

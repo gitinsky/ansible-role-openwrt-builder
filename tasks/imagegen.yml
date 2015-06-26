@@ -2,7 +2,7 @@
 - name: ensure done flag is removed
   when: not container.changed
   file: &id001
-    dest:  "/root/openwrt-{{ unirun_open_wrt_release_version }}-builder-{{ unirun_open_wrt_arch }}/logs/openwrt-{{ unirun_open_wrt_release_version }}-builder-raw.done"
+    dest:  "{{ openwrt_config_dir }}/openwrt-{{ unirun_open_wrt_release_version }}-builder-{{ unirun_open_wrt_arch }}/logs/openwrt-{{ unirun_open_wrt_release_version }}-builder-raw.done"
     state: absent
 
 - name: run openwrt-{{ unirun_open_wrt_release_version }}-builder and compile requested {{ unirun_open_wrt_arch }}
@@ -11,10 +11,10 @@
     detach: no
     state: restarted
     volumes:
-      - "/root/openwrt-{{ unirun_open_wrt_release_version }}-builder/result:/compile/openwrt-{{ unirun_open_wrt_release_version }}/bin"
-      - "/root/openwrt-{{ unirun_open_wrt_release_version }}-builder-{{ unirun_open_wrt_arch }}/logs:/compile/logs"
-      - "/root/openwrt-{{ unirun_open_wrt_release_version }}-builder-{{ unirun_open_wrt_arch }}/run:/compile/run"
-      - "/root/openwrt-builder/config:/compile/config"
+      - "{{ openwrt_config_dir }}/openwrt-{{ unirun_open_wrt_release_version }}-builder/result:/compile/openwrt-{{ unirun_open_wrt_release_version }}/bin"
+      - "{{ openwrt_config_dir }}/openwrt-{{ unirun_open_wrt_release_version }}-builder-{{ unirun_open_wrt_arch }}/logs:/compile/logs"
+      - "{{ openwrt_config_dir }}/openwrt-{{ unirun_open_wrt_release_version }}-builder-{{ unirun_open_wrt_arch }}/run:/compile/run"
+      - "{{ openwrt_config_dir }}/openwrt-builder/config:/compile/config"
     name: "openwrt-{{ unirun_open_wrt_release_version }}-builder-{{ unirun_open_wrt_arch }}-docker-image-build"
     command: "/compile/run/universalrun.sh {{ unirun_open_wrt_config }}"
   register: docker_run
@@ -43,7 +43,7 @@
 
 - name: wait for compilation completion
   wait_for:
-    path: /root/openwrt-{{ unirun_open_wrt_release_version }}-builder-{{ unirun_open_wrt_arch }}/logs/openwrt-{{ unirun_open_wrt_release_version }}-builder-raw.done
+    path: "{{ openwrt_config_dir }}/openwrt-{{ unirun_open_wrt_release_version }}-builder-{{ unirun_open_wrt_arch }}/logs/openwrt-{{ unirun_open_wrt_release_version }}-builder-raw.done"
     timeout: "{{ 3600*5 }}"
 
 - name: commit image
@@ -70,15 +70,21 @@
     state: absent
 
 - name: find out subtarget
-  shell: grep -E "^\s{0,}CONFIG_TARGET_[a-z,0-9]{1,}_[a-z,0-9]{1,}=y" "/root/openwrt-builder/config/{{ unirun_open_wrt_config }}" |sed -E 's/CONFIG_TARGET_([^_]*)_(.*)=y/\2/'
+  shell: grep -E "^\s{0,}CONFIG_TARGET_[a-z,0-9]{1,}_[a-z,0-9]{1,}=y" "{{ openwrt_config_dir }}/openwrt-builder/config/{{ unirun_open_wrt_config }}" |sed -E 's/CONFIG_TARGET_([^_]*)_(.*)=y/\2/'
   changed_when: false
   register: target_subtarget
 
 - name: show subtagret
   debug: msg="subtarget = '{{ target_subtarget.stdout }}'"
 
-- name: ensure /root/openwrt/{{ unirun_open_wrt_release_version }}/{{ unirun_open_wrt_arch }}/{{ target_subtarget.stdout }}/ esists
-  file: dest="/root/openwrt/{{ unirun_open_wrt_release_version }}/{{ unirun_open_wrt_arch }}/{{ target_subtarget.stdout }}/" state=directory
+- name: ensure {{ openwrt_config_dir }}/openwrt/{{ unirun_open_wrt_release_version }}/{{ unirun_open_wrt_arch }}/{{ target_subtarget.stdout }}/ esists
+  file: dest="{{ openwrt_config_dir }}/openwrt/{{ unirun_open_wrt_release_version }}/{{ unirun_open_wrt_arch }}/{{ target_subtarget.stdout }}/" state=directory
 
-- name: move files to /root/openwrt/{{ unirun_open_wrt_release_version }}/{{ unirun_open_wrt_arch }}/{{ target_subtarget.stdout }}
-  command: rsync --remove-source-files --del -avc /root/openwrt-{{ unirun_open_wrt_release_version }}-builder/result/{{ unirun_open_wrt_arch }}/ /root/openwrt/{{ unirun_open_wrt_release_version }}/{{ unirun_open_wrt_arch }}/{{ target_subtarget.stdout }}/
+- name: create targer directory
+  file:
+      dest: "{{ openwrt_output_dir_path }}"
+      state: directory
+      owner: "{{ openwrt_output_dir_owner }}"
+
+- name: move files to {{ openwrt_config_dir }}/openwrt/{{ unirun_open_wrt_release_version }}/{{ unirun_open_wrt_arch }}/{{ target_subtarget.stdout }}
+  command: rsync --remove-source-files --del -avc {{ openwrt_config_dir }}/openwrt-{{ unirun_open_wrt_release_version }}-builder/result/{{ unirun_open_wrt_arch }}/ {{ openwrt_output_dir_path }}/{{ unirun_open_wrt_release_version }}/{{ unirun_open_wrt_arch }}/{{ target_subtarget.stdout }}/

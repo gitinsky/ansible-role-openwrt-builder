@@ -1,11 +1,11 @@
 ---
 - name: create folders for docker files
-  file: path=/root/{{ item.dir }} state=directory mode={{ item.mode }}
+  file: path={{ openwrt_config_dir }}/{{ item.dir }} state=directory mode={{ item.mode }}
   with_items:
     - { dir: openwrt-1407-builder      , mode: 755 }
 
 - name: put openwrt-1407-builder Dockerfile
-  template: src=openwrt-1407-builder/Dockerfile dest=/root/openwrt-1407-builder/Dockerfile
+  template: src=openwrt-1407-builder/Dockerfile dest={{ openwrt_config_dir }}/openwrt-1407-builder/Dockerfile
 
 - name: build gitinsky/openwrt-1407-builder
-  command: docker build -t gitinsky/openwrt-1407-builder:latest --rm /root/openwrt-1407-builder
+  command: docker build -t gitinsky/openwrt-1407-builder:latest --rm {{ openwrt_config_dir }}/openwrt-1407-builder
