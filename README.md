@@ -50,3 +50,17 @@ The idea of “architecture” specific images is simple: first compilation alwa
 ##  Building firmwares with your modifications
 
 This is done with the [```openwrt-compiler```](https://github.com/gitinsky/ansible-role-openwrt-compiler.git) role.
+
+## Known issues
+
+In ansible 1.9.0.1 and 1.9.1 filter_plugins are not read from roles. The workaround is to clone them to you ansible directory and to define plugins variable in ansible.cfg
+
+```bash
+mkdir -vp plugins
+git submodule add https://github.com/gitinsky/ansible-filter_plugins.git plugins/filter_plugins
+```
+
+ansible.cfg:
+```yaml
+filter_plugins = ./plugins/filter_plugins
+```
